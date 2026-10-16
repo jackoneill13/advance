@@ -3,6 +3,7 @@ import Link from "next/link";
 const TABS = [
   ["worklist", "Worklist", ""],
   ["people", "People & access", "/people"],
+  ["dos", "Day of show", "/dos"],
   ["door", "Door sheet", "/door"],
   ["sheet", "Advance sheet", "/sheet"],
 ] as const;

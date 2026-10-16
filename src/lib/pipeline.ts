@@ -8,6 +8,7 @@ import { parseRider } from "./parser";
 import { matchRider } from "./matcher";
 import { fitCheck } from "./fitcheck";
 import { needsTmApproval } from "./rules";
+import { proposeSchedule } from "./scheduler";
 import type { FitCheck, MatchResult, RiderParse } from "./schemas";
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? "./data/uploads";
@@ -58,6 +59,12 @@ export async function persistAdvance(args: {
     parseModel: args.parseModel,
   });
 
+  const venue = await db.query.venues.findFirst({ where: eq(schema.venues.id, args.venueId) });
+  const hasRentals = args.match.resolutions.some((r) => r.costNote && /rent/i.test(r.costNote));
+  const proposed = venue
+    ? await proposeSchedule({ venueName: venue.name, specPack: venue.specPack, parse: args.parse, doorsTime: args.doorsTime, hasRentals })
+    : null;
+
   const advanceId = nanoid(12);
   await db.insert(schema.advances).values({
     id: advanceId,
@@ -72,7 +79,18 @@ export async function persistAdvance(args: {
     fit: args.fit,
     scopeMessage: args.match.scopeMessageDraft,
     matchModel: args.matchModel,
+    schedule: proposed?.schedule ?? null,
   });
+  if (proposed?.basis.length) {
+    await db.insert(schema.messages).values({
+      id: nanoid(12),
+      advanceId,
+      channel: "note",
+      direction: "in",
+      party: "scheduler",
+      body: `Proposed schedule. ${proposed.basis.join(" ")}`,
+    });
+  }
 
   const byIndex = new Map(args.match.resolutions.map((r) => [r.itemIndex, r]));
   const rows = args.parse.items.map((item, idx) => {

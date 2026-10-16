@@ -1,6 +1,6 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import type { SpecPack, RiderParse, FitCheck, ItemCategory, RequirementLevel, ItemState, Decision } from "@/lib/schemas";
+import type { SpecPack, RiderParse, FitCheck, ItemCategory, RequirementLevel, ItemState, Decision, Schedule } from "@/lib/schemas";
 
 const now = sql`(current_timestamp)`;
 
@@ -44,6 +44,19 @@ export const advances = sqliteTable("advances", {
   fit: text("fit", { mode: "json" }).$type<FitCheck>(),
   scopeMessage: text("scope_message"),
   matchModel: text("match_model"),
+  schedule: text("schedule", { mode: "json" }).$type<Schedule>(),
+  scheduleConfirmedAt: text("schedule_confirmed_at"),
+  dosNotes: text("dos_notes"),
+  createdAt: text("created_at").notNull().default(now),
+});
+
+export const venueStaff = sqliteTable("venue_staff", {
+  id: text("id").primaryKey(),
+  advanceId: text("advance_id").notNull().references(() => advances.id),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  phone: text("phone"),
+  callTime: text("call_time"),
   createdAt: text("created_at").notNull().default(now),
 });
 
@@ -131,3 +144,4 @@ export type PartyMember = typeof partyMembers.$inferSelect;
 export type Guest = typeof guests.$inferSelect;
 export type Vehicle = typeof vehicles.$inferSelect;
 export type Message = typeof messages.$inferSelect;
+export type VenueStaff = typeof venueStaff.$inferSelect;

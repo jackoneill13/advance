@@ -134,6 +134,47 @@ export type FitCheck = {
   summary: string;
 };
 
+/* ------------------------------------------------------------------ */
+/* Day-of-show schedule                                                */
+/* ------------------------------------------------------------------ */
+
+export const SCHEDULE_SLOTS = [
+  ["venueCall", "Venue crew call"],
+  ["loadIn", "Load-in"],
+  ["backlineArrives", "Backline / rentals arrive"],
+  ["soundcheckHeadliner", "Soundcheck, headliner"],
+  ["soundcheckSupport", "Soundcheck, support"],
+  ["dinner", "Dinner / buyout"],
+  ["guestListCutoff", "Guest list cutoff"],
+  ["doors", "Doors"],
+  ["supportSet", "Support set"],
+  ["changeover", "Changeover"],
+  ["headlinerSet", "Headliner set"],
+  ["curfew", "Curfew"],
+  ["loadOut", "Load-out"],
+  ["settlement", "Settlement"],
+] as const;
+
+export type ScheduleSlotKey = (typeof SCHEDULE_SLOTS)[number][0];
+
+/** Each slot is "HH:MM" (24-hour) or empty; `note` holds durations or caveats ("75 min", "no strobes"). */
+export const ScheduleSchema = z.object({
+  times: z.record(z.string(), z.string()).default({}),
+  notes: z.record(z.string(), z.string()).default({}),
+});
+export type Schedule = z.infer<typeof ScheduleSchema>;
+
+export const ScheduleDraftSchema = z.object({
+  times: z
+    .record(z.enum(SCHEDULE_SLOTS.map(([k]) => k) as [ScheduleSlotKey, ...ScheduleSlotKey[]]), z.string().nullable())
+    .describe("Proposed clock times as HH:MM 24-hour, or null when there is no basis for one"),
+  notes: z
+    .record(z.enum(SCHEDULE_SLOTS.map(([k]) => k) as [ScheduleSlotKey, ...ScheduleSlotKey[]]), z.string().nullable())
+    .describe("Short notes per slot: set lengths, 'per rider', 'house policy', caveats; null when none"),
+  basis: z.array(z.string()).describe("One line per inference: which rider line or spec-pack fact set which time"),
+});
+export type ScheduleDraft = z.infer<typeof ScheduleDraftSchema>;
+
 export const DECISIONS = ["accept", "substitute", "decline", "answered", "noted"] as const;
 export type Decision = (typeof DECISIONS)[number];
 

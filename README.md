@@ -60,6 +60,12 @@ rider files ──▶ ingest ──▶ parser (Claude, structured output) ──
   and vehicles. Guest-list adds after the venue's cutoff are marked as late adds.
 - **People and access** (`/advances/[id]/people`): roster with pass types defaulted by role, guest list against the comp policy
   per act, vehicles. The door sheet (`/door`) and advance sheet (`/sheet`) print cleanly from the browser.
+- **Day of show** (`/advances/[id]/dos`): the scheduler (`src/lib/scheduler.ts`) proposes a timeline from the doors time,
+  the rider's schedule lines (load-in offset, soundcheck minimums, set lengths), and house policy (curfew, guest-list
+  cutoff); without an API key it falls back to a deterministic baseline. The venue edits and confirms it, adds its staff
+  for the show, and the sheet assembles the timeline, contacts, rules carried from the rider, production notes,
+  hospitality, substitutions, and what was declined. The artist link gets a read-only copy at `/a/[token]/dos` with
+  venue-internal details (party cell numbers, costs) left off.
 
 Spec packs are written in plain language per section (stage, PA, monitors, power, backline, lighting/video/SFX, rooms,
 hospitality, crew, load-in, policies, vendors) plus pass types and comp policy. That is what every rider is diffed against,

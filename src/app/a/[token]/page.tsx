@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdvanceByToken, guestAllocation } from "@/lib/queries";
 import { answerQuestion, approveSubstitute, artistAddPartyMember, artistAddGuest, artistAddVehicle } from "@/app/actions";
@@ -34,6 +35,11 @@ export default async function ArtistSharePage({ params }: { params: Promise<{ to
             ? "Nothing open on your side right now. Thank you."
             : `${openQuestions.length} question${openQuestions.length === 1 ? "" : "s"} and ${pendingSignoffs.length} sign-off${pendingSignoffs.length === 1 ? "" : "s"} are waiting on you. No login needed.`}
         </p>
+        {advance.schedule ? (
+          <Link href={`/a/${token}/dos`} className={`${btnGhost} mt-3`}>
+            Day-of-show sheet{advance.scheduleConfirmedAt ? "" : " (draft)"}
+          </Link>
+        ) : null}
       </div>
 
       {openQuestions.length ? (

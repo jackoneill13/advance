@@ -33,8 +33,8 @@ export default async function WorklistPage({ params }: { params: Promise<{ id: s
             <Link href={`/a/${advance.shareToken}`} className={btnGhost} target="_blank">
               Artist link
             </Link>
-            <Link href={`/advances/${advance.id}/sheet`} className={btnGhost}>
-              Advance sheet
+            <Link href={`/advances/${advance.id}/dos`} className={btnGhost}>
+              Day of show
             </Link>
             <form action={publishAdvance}>
               <input type="hidden" name="advanceId" value={advance.id} />

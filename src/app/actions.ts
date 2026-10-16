@@ -7,7 +7,18 @@ import { nanoid } from "nanoid";
 import { db, schema } from "@/db";
 import { runAdvancePipeline } from "@/lib/pipeline";
 import { mimeFromName, type IngestedFile } from "@/lib/ingest";
-import { SPEC_SECTIONS, SpecPackSchema, DECISIONS, DEFAULT_PASS_BY_ROLE, type Decision, type PartyRole, type SpecPack } from "@/lib/schemas";
+import {
+  SPEC_SECTIONS,
+  SCHEDULE_SLOTS,
+  SpecPackSchema,
+  ScheduleSchema,
+  DECISIONS,
+  DEFAULT_PASS_BY_ROLE,
+  type Decision,
+  type PartyRole,
+  type SpecPack,
+} from "@/lib/schemas";
+import { defaultSchedule, proposeSchedule, toMinutes } from "@/lib/scheduler";
 import { getAdvanceByToken, getAdvanceFull, isOpen } from "@/lib/queries";
 import { isPastCutoff } from "@/lib/time";
 
@@ -149,7 +160,82 @@ export async function publishAdvance(form: FormData) {
   const advanceId = str(form, "advanceId");
   await db.update(schema.advances).set({ status: "published" }).where(eq(schema.advances.id, advanceId));
   revalidatePath(`/advances/${advanceId}`);
-  redirect(`/advances/${advanceId}/sheet`);
+  redirect(`/advances/${advanceId}/dos`);
+}
+
+/* ------------------------------------------------------------------ */
+/* Day-of-show schedule                                                */
+/* ------------------------------------------------------------------ */
+
+export async function saveSchedule(form: FormData) {
+  const advanceId = str(form, "advanceId");
+  const times: Record<string, string> = {};
+  const notes: Record<string, string> = {};
+  for (const [key] of SCHEDULE_SLOTS) {
+    const t = str(form, `time_${key}`);
+    if (t && toMinutes(t) !== null) times[key] = t;
+    const n = str(form, `note_${key}`);
+    if (n) notes[key] = n;
+  }
+  const schedule = ScheduleSchema.parse({ times, notes });
+  const confirm = str(form, "confirm") === "1";
+  await db
+    .update(schema.advances)
+    .set({
+      schedule,
+      doorsTime: times.doors ?? null,
+      dosNotes: opt(form, "dosNotes"),
+      scheduleConfirmedAt: confirm ? new Date().toISOString() : null,
+    })
+    .where(eq(schema.advances.id, advanceId));
+  revalidatePath(`/advances/${advanceId}/dos`);
+  redirect(`/advances/${advanceId}/dos${confirm ? "" : "?edit=1&saved=1"}`);
+}
+
+export async function reproposeSchedule(form: FormData) {
+  const advanceId = str(form, "advanceId");
+  const full = await getAdvanceFull(advanceId);
+  if (!full) throw new Error("Advance not found.");
+  const hasRentals = full.items.some((it) => it.costNote && /rent/i.test(it.costNote));
+  const proposed = full.rider?.parsed
+    ? await proposeSchedule({
+        venueName: full.venue.name,
+        specPack: full.venue.specPack,
+        parse: full.rider.parsed,
+        doorsTime: full.advance.doorsTime,
+        hasRentals,
+      })
+    : { schedule: defaultSchedule(full.advance.doorsTime, full.venue.specPack), basis: ["Baseline from doors time."], model: null };
+  await db.update(schema.advances).set({ schedule: proposed.schedule, scheduleConfirmedAt: null }).where(eq(schema.advances.id, advanceId));
+  await db.insert(schema.messages).values({
+    id: nanoid(12),
+    advanceId,
+    channel: "note",
+    direction: "in",
+    party: "scheduler",
+    body: `Re-proposed schedule. ${proposed.basis.join(" ")}`,
+  });
+  revalidatePath(`/advances/${advanceId}/dos`);
+  redirect(`/advances/${advanceId}/dos?edit=1`);
+}
+
+export async function addVenueStaff(form: FormData) {
+  const advanceId = str(form, "advanceId");
+  await db.insert(schema.venueStaff).values({
+    id: nanoid(12),
+    advanceId,
+    name: str(form, "name"),
+    role: str(form, "role") || "Staff",
+    phone: opt(form, "phone"),
+    callTime: opt(form, "callTime"),
+  });
+  revalidatePath(`/advances/${advanceId}/dos`);
+}
+
+export async function removeVenueStaff(form: FormData) {
+  const advanceId = str(form, "advanceId");
+  await db.delete(schema.venueStaff).where(and(eq(schema.venueStaff.id, str(form, "staffId")), eq(schema.venueStaff.advanceId, advanceId)));
+  revalidatePath(`/advances/${advanceId}/dos`);
 }
 
 async function refreshStatus(advanceId: string) {

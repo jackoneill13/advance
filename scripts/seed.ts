@@ -52,6 +52,34 @@ async function main() {
     match,
     matchModel: null,
   });
+  // A confirmed schedule and a couple of venue staff so the day-of-show sheet is populated.
+  const { defaultSchedule } = await import("../src/lib/scheduler");
+  const schedule = defaultSchedule("19:00", specPack);
+  schedule.times.loadIn = "16:00";
+  schedule.notes.loadIn = "per rider: 3 h before doors";
+  schedule.times.backlineArrives = "15:30";
+  schedule.notes.backlineArrives = "Valley Backline with tech";
+  schedule.times.soundcheckHeadliner = "17:00";
+  schedule.notes.soundcheckHeadliner = "per rider: 60 min minimum";
+  schedule.times.soundcheckSupport = "18:10";
+  schedule.times.dinner = "18:00";
+  schedule.notes.dinner = "Boboko delivery, 8 meals (1 vegan, 1 GF)";
+  schedule.times.supportSet = "20:00";
+  schedule.notes.supportSet = "35 min";
+  schedule.times.changeover = "20:35";
+  schedule.times.headlinerSet = "21:00";
+  schedule.notes.headlinerSet = "75 min, no strobes in the acoustic set";
+  schedule.times.loadOut = "22:30";
+  schedule.times.settlement = "22:45";
+  await db
+    .update(schema.advances)
+    .set({ schedule, scheduleConfirmedAt: new Date().toISOString(), dosNotes: "Van and trailer park behind the venue; two spaces. Runner is on site from 3 pm. Green room key with the stage manager." })
+    .where(eq(schema.advances.id, advanceId));
+  await db.insert(schema.venueStaff).values([
+    { id: nanoid(12), advanceId, name: "Dana Whitfield", role: "Production manager", phone: "555-0142", callTime: "15:00" },
+    { id: nanoid(12), advanceId, name: "Marcus Bell", role: "House sound", phone: "555-0177", callTime: "15:00" },
+    { id: nanoid(12), advanceId, name: "Priya Nair", role: "Door", phone: null, callTime: "18:30" },
+  ]);
   console.log(`Seeded demo advance: http://localhost:3000/advances/${advanceId}`);
 }
 

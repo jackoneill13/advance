@@ -46,7 +46,7 @@ export function isOpen(it: schema.LineItem): boolean {
 export async function getAdvanceFull(id: string) {
   const advance = await db.query.advances.findFirst({ where: eq(schema.advances.id, id) });
   if (!advance) return null;
-  const [venue, artist, rider, items, party, guestRows, vehicleRows, messageRows] = await Promise.all([
+  const [venue, artist, rider, items, party, guestRows, vehicleRows, messageRows, staffRows] = await Promise.all([
     db.query.venues.findFirst({ where: eq(schema.venues.id, advance.venueId) }),
     db.query.artists.findFirst({ where: eq(schema.artists.id, advance.artistId) }),
     advance.riderId ? db.query.riders.findFirst({ where: eq(schema.riders.id, advance.riderId) }) : Promise.resolve(undefined),
@@ -55,10 +55,24 @@ export async function getAdvanceFull(id: string) {
     db.query.guests.findMany({ where: eq(schema.guests.advanceId, id), orderBy: [asc(schema.guests.actName), asc(schema.guests.name)] }),
     db.query.vehicles.findMany({ where: eq(schema.vehicles.advanceId, id), orderBy: [asc(schema.vehicles.createdAt)] }),
     db.query.messages.findMany({ where: eq(schema.messages.advanceId, id), orderBy: [desc(schema.messages.createdAt)] }),
+    db.query.venueStaff.findMany({ where: eq(schema.venueStaff.advanceId, id), orderBy: [asc(schema.venueStaff.callTime), asc(schema.venueStaff.name)] }),
   ]);
   if (!venue || !artist) return null;
-  return { advance, venue, artist, rider: rider ?? null, items, party, guests: guestRows, vehicles: vehicleRows, messages: messageRows };
+  return {
+    advance,
+    venue,
+    artist,
+    rider: rider ?? null,
+    items,
+    party,
+    guests: guestRows,
+    vehicles: vehicleRows,
+    messages: messageRows,
+    staff: staffRows,
+  };
 }
+
+export type AdvanceFull = NonNullable<Awaited<ReturnType<typeof getAdvanceFull>>>;
 
 export async function getAdvanceByToken(token: string) {
   const advance = await db.query.advances.findFirst({ where: eq(schema.advances.shareToken, token) });
