@@ -13,9 +13,12 @@ publishing, Master Tour import, auth.
 ```bash
 npm install
 cp .env.example .env.local        # add ANTHROPIC_API_KEY to parse real riders
-npm run setup                     # creates ./data/advance.db and seeds a demo venue + advance
+npm run setup                     # applies migrations to ./data/advance.db and seeds a demo venue + advance
 npm run dev                       # http://localhost:3000
 ```
+
+Node 20.9 or newer (22 or 24 LTS recommended). `npm audit` currently reports one unpatched advisory in `braces`, a glob library
+used only by Next's ESLint plugin at lint time; it is not part of the running app and there is no fixed release yet.
 
 The demo advance ("The Harbor Lights") runs with no API key: it loads a parsed rider and matched worklist from
 `fixtures/demo/`, so you can click through the worklist, the share link (Artist link button), people and access, the door
@@ -82,6 +85,19 @@ Defaults: `claude-sonnet-5-5` for parse and match, `claude-haiku-5-5` reserved f
 sent as cached system text, so repeat advances at the same venue pay a fraction of the input cost. A typical six-page rider
 costs well under a dollar to parse and match. `MAX_OUTPUT_TOKENS_PER_CALL` caps every call; add a per-advance budget before
 opening this to many venues.
+
+## Database and migrations
+
+The schema lives in `src/db/schema.ts`; the SQL migrations that create it live in `drizzle/` and are applied by
+`npm run db:migrate` (idempotent, part of `npm run setup`). When you change the schema, generate the next migration and
+commit it:
+
+```bash
+npx drizzle-kit@latest generate --name what-changed
+npm run db:migrate
+```
+
+`drizzle-kit` is deliberately not a project dependency; it is only needed when the schema changes.
 
 ## Hosting
 
