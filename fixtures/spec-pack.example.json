@@ -1,0 +1,19 @@
+{
+  "capacity": 300,
+  "passTypes": ["All Access", "Working", "Artist Guest", "Photo", "Merch"],
+  "compPolicy": { "headliner": 10, "support": 5, "cutoffHoursBeforeDoors": 4 },
+  "sections": {
+    "stage": "24 ft wide x 16 ft deep, 3 ft high. One 8x8 ft riser, 1 ft high, black skirted. Wings 4 ft each side. 24 ft run of 4 ft barricade available on request.",
+    "pa": "Point-source house PA: 4 x QSC KLA12 per side with 2 x KS118 subs per side; even coverage to 106 dB(A) at the FOH mix position; 2 front fills. FOH console: Allen & Heath SQ-6 (48 inputs) at the rear of the room on an 8 ft standing-height table with system processing at FOH.",
+    "monitors": "6 mixes from FOH: 6 x RCF NX 12-SMA wedges and 1 x QSC KS118 drum sub. No separate monitor console. Mics: 6 x SM58, 6 x SM57, 4 x Beta 57, 1 x Beta 52 kick, 2 x Beta 91, 2 x KSM137 overheads, 4 x Radial DI. Wireless: 2 x Shure SLX-D handheld SM58. Stands: 8 boom, 4 straight, 2 short boom. IEM: no house IEM system; clean RF environment; any mix available as a 1/4 in or XLR split.",
+    "power": "Upstage: 2 x 20 A / 120 V quad boxes, stage left and stage right. Downstage center: 1 x 20 A / 120 V. Cables: 30 x 25 ft XLR, 10 x 10 ft XLR, 6 x 20 ft TS, 16-channel sub-snake stage left.",
+    "backline": "No house backline. DJ: 2 x Pioneer CDJ-3000, DJM-900NXS2, 6 ft DJ table, booth riser 1 ft. Preferred rental house: Valley Backline, 24 h notice, can send a backline tech.",
+    "lighting": "12 x LED par front wash, 8 x LED color wash, 2 moving heads, hazer. Lighting operator available on request as a 4-hour labor call. No LED wall; 12 ft projection screen upstage with a 5,000-lumen projector and a house video tech on request. No pyro, CO2, confetti, or open flame; the fire marshal prohibits all of it.",
+    "rooms": "Green room: lockable, seats 10, full-length mirror, mini fridge, private bathroom with shower, climate control. Office (second room): lockable, seats 3, no bathroom.",
+    "hospitality": "Runner from the local grocery (Martin's) and bar pull for alcohol. Hot meals by buyout or from a neighboring restaurant on request; no in-house kitchen. On every show we provide 2 cases of water (one cold), white hand towels, hot coffee and tea with milk, and a standard deli tray with bread, hummus, fruit, and vegetables.",
+    "crew": "House sound engineer on every show. Lighting operator and 2 loaders available on request at a 4-hour minimum labor call. No backline tech on staff; the rental house can send one.",
+    "loadin": "Street-level double door, 6 ft wide, 20 ft to stage, no steps. Parking: 2 spaces behind the venue; a van and trailer fit; no bus parking on site, a bus parks on the street with a city permit at 24 h notice. Nearest hotel 0.4 miles; airport 40 minutes.",
+    "policies": "Curfew 11:30 pm Sunday to Thursday, 12:30 am Friday and Saturday. Sound limit 105 dB(A) at FOH. Photographers by arrangement only. Merch rate 15% on soft goods, 0% on music, a venue seller is available. Security: 2 staff on every show; artist equipment is secured in the green room. Settlement the night of the show.",
+    "vendors": "Valley Backline (rental and tech). Martin's (grocery runner). Boboko (hot meals). Hotel Madison (0.4 mi). Shenandoah AV (video). No SFX vendor; SFX is not permitted."
+  }
+}

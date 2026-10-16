@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# advance: local database, uploads, and real riders
+/data/
+/fixtures/riders/*
+!/fixtures/riders/.gitkeep
+!/fixtures/riders/README.md
+
+!.env.example
